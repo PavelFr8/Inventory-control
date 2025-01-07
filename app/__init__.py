@@ -46,9 +46,11 @@ def create_app():
         sys.exit(1)
     app.config.from_object(settings)
 
-    # Log application startup
+    logger.info(f"Application use {settings}")
+
     if app.config['DEBUG']:
         DebugToolbarExtension(app)
+        os.environ.setdefault("FLASK_DEBUG", "1")
 
     # Initialize extensions
     login_manager.init_app(app)
