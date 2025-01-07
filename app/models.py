@@ -9,26 +9,25 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 
 
-# Класс для определения состояния заявки
+# classes for defining different enum type
 class RequestState(Enum):
     PENDING = 'pending'
     DENIED = 'denied'
     APPROVED = 'approved'
 
 
-# Класс для определения типа заявки
 class RequestType(Enum):
     REPAIR = 'repair'
     TAKE = 'take'
 
 
-# Класс для определения состояния инвентаря
 class ItemState(Enum):
     NEW = 'new'
     USED = 'used'
     BROKEN = 'broken'
 
 
+# SQLAlchemy models
 class Role(db.Model):
     __tablename__ = 'roles'
 

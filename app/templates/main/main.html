@@ -2,4 +2,7 @@
 
 {% block content %}
     <h1>MAIN PAGE!!!1!!!!1111</h1>
+    {% if current_user.is_authenticated %}
+      <h2>Hi {{ current_user.name }}!</h2>
+    {% endif %}
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import render_template, request
+from flask import render_template, request, make_response, redirect, url_for
 from app import db, logger
 from . import module
 
@@ -14,6 +14,10 @@ def not_found_error(error):
         # return api_error_response(404)
         pass
     return render_template('errors/404.html'), 404
+
+@module.app_errorhandler(401)
+def unauthorized(error):
+    return make_response(redirect(url_for('register.login')))
 
 @module.app_errorhandler(500)
 def internal_error(error):
