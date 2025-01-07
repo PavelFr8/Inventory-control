@@ -12,5 +12,4 @@ with app.test_request_context():
 # set login manager user loader
 @login_manager.user_loader
 def load_user(user_id):
-    user = User.query.get(user_id)
-    return user
+    return User.query.get(user_id)

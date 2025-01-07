@@ -63,7 +63,8 @@ def create_app():
     app.register_blueprint(errors.module)
 
     # register all app modules
-
+    import app.modules.main as main
+    app.register_blueprint(main.module)
 
     logger.info("Flask application initialized successfully.")
 

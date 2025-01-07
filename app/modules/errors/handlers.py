@@ -1,6 +1,7 @@
 from flask import render_template, request
-from app import db
-from app.modules.errors import module
+from app import db, logger
+from . import module
+
 # from app.api.errors import error_response as api_error_response
 
 def wants_json_response():
@@ -16,6 +17,7 @@ def not_found_error(error):
 
 @module.app_errorhandler(500)
 def internal_error(error):
+    logger.error(f"500 error: {error}")
     db.session.rollback()
     if wants_json_response():
         # return api_error_response(500)
