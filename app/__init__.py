@@ -1,0 +1,71 @@
+import os
+import sys
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_migrate import Migrate
+from flask_wtf import CSRFProtect
+from flask_debugtoolbar import DebugToolbarExtension
+
+from dotenv import load_dotenv
+from loguru import logger
+
+# Initialize extensions
+db = SQLAlchemy()
+login_manager = LoginManager()
+csrf = CSRFProtect()
+migrate = Migrate()
+
+# Setup logger
+logger.remove()
+logger.add(
+    "app.log",
+    level="DEBUG",
+    rotation="10 MB",
+    compression="zip"
+)
+logger.add(
+    sys.stdout,
+    level="DEBUG"
+)
+
+def create_app():
+    """
+    Factory function to create a Flask application.
+    """
+    logger.info("Starting Flask application...")
+
+    app = Flask(__name__)
+
+    # get from .env app settings
+    load_dotenv()
+    settings = os.environ.get('APP_SETTINGS')
+    if settings is None:
+        logger.error(".env variable is not set.")
+        sys.exit(1)
+    app.config.from_object(settings)
+
+    logger.info(f"Application use {settings}")
+
+    if app.config['DEBUG']:
+        DebugToolbarExtension(app)
+        os.environ.setdefault("FLASK_DEBUG", "1")
+
+    # Initialize extensions
+    login_manager.init_app(app)
+    csrf.init_app(app)
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    # register errors handler
+    import app.modules.errors as errors
+    app.register_blueprint(errors.module)
+
+    # register all app modules
+    import app.modules.main as main
+    app.register_blueprint(main.module)
+
+    logger.info("Flask application initialized successfully.")
+
+    return app
