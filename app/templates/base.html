@@ -21,14 +21,14 @@
         <ul class="navbar-nav me-auto">
           {% if current_user.role.name == 'user' %}
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Мой Инвентарь</a>
+              <a class="nav-link active" aria-current="page" href="{{ url_for('inventory.my_inventory') }}">Мой Инвентарь</a>
             </li>
             <li class="nav-item">
               <a class="nav-link active" href="#">Мои Заявки</a>
             </li>
           {% elif current_user.role.name == 'admin' %}
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Инвентарь</a>
+              <a class="nav-link active" aria-current="page" href="{{ url_for('inventory.my_inventory') }}">Инвентарь</a>
             </li>
             <li class="nav-item">
               <a class="nav-link active" href="#">Заявки</a>
