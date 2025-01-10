@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for
 from flask_login import login_required, current_user
 
 from app.models import Item, ItemState, User
@@ -26,11 +26,12 @@ def my_inventory():
 
 
     form3.user_id.choices = [(user.id, user.name) for user in users]
-    form3.user_id.choices.append((0, " "))
+    form3.user_id.choices.append((0, "-"))
 
     return render_template('inventory/my_inventory.html', title='Доступный инвентарь', items=items, form=form,
                            form2=form2, form3=form3, users=users, available_items=available_items)
 
+# adding new item to db
 @module.route('/add_item', methods=['POST'])
 @login_required
 def add_item():
@@ -53,7 +54,7 @@ def add_item():
             return render_template('inventory/my_inventory.html', title='Доступный инвентарь', form=form,
                                    message='Произошла непредвиденная ошибка.')
 
-
+# changing infp about item in db
 @module.route('/change_item/<int:id>', methods=['POST'])
 @login_required
 def change_item(id):
@@ -83,6 +84,7 @@ def change_item(id):
             return render_template('inventory/my_inventory.html', title='Доступный инвентарь', form=form,
                                    message='Произошла непредвиденная ошибка.')
 
+# deleting item from db
 @module.route('/delete_item/<int:id>')
 @login_required
 def delete_item(id):
@@ -93,6 +95,7 @@ def delete_item(id):
     return redirect(url_for('inventory.my_inventory'))
 
 
+# assigning item to user
 @module.route('/assign_item/<int:id>', methods=['POST'])
 @login_required
 def assign_item(id):
@@ -100,7 +103,7 @@ def assign_item(id):
     users = [user for user in User.query.all() if user.role.name != 'admin']
 
     form.user_id.choices = [(user.id, user.name) for user in users]
-    form.user_id.choices.append((0, " "))
+    form.user_id.choices.append((0, "-"))
     if form.validate_on_submit():
         try:
             item: Item = Item.query.get(id)

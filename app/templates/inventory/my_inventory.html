@@ -3,7 +3,7 @@
 {% block content %}
     {% if current_user.role.name == 'admin' %}
     <link href="{{ url_for('static', filename='css/my_inventory.css') }}" rel="stylesheet">
-    <h2 class="mb-4"><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryModal">
+    <h2 class="mb-5"><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#inventoryModal">
         Добавить
     </button>
      Доступный инвентарь</h2>
@@ -76,6 +76,12 @@
                 </p>
                 {% endif %}
             </div>
+            {% if current_user.role.name == 'user' %}
+            <div class="card-footer d-flex justify-content-between">
+                <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-warning btn-sm">Запросить ремонт</a>
+                <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-secondary btn-sm">Запросить замену</a>
+            </div>
+            {% endif %}
             {% if current_user.role.name == 'admin' %}
             <div class="card-footer d-flex justify-content-between">
                 <button class="btn btn-outline-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#changeInventoryModal{{ item.id }}">Редактировать</button>
@@ -140,8 +146,8 @@
                                         {% endfor %}
                                     </div>
                                     <div class="form-floating mb-3">
-                                        {{ form2.state(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.state) }}
-                                        <label for="floatingQuantity">Количество</label>
+                                        {{ form2.state(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.state.value) }}
+                                        <label for="floatingQuantity">Состояние</label>
                                         {% for error in form.quantity.errors %}
                                             <div class="alert alert-danger" role="alert">
                                                 {{ error }}
