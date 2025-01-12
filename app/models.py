@@ -28,6 +28,8 @@ class ItemState(Enum):
 
 
 # SQLAlchemy models
+
+# model for user roles (user or admin)
 class Role(db.Model):
     __tablename__ = 'roles'
 
@@ -37,6 +39,7 @@ class Role(db.Model):
     users = orm.relationship('User', back_populates='role')
 
 
+# basic user model
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
 
@@ -50,7 +53,6 @@ class User(db.Model, UserMixin):
     role = orm.relationship('Role', back_populates='users')
     items = orm.relationship("Item", back_populates="user")
     requests = orm.relationship("Request", back_populates="user")
-    reports = orm.relationship("Report", back_populates="user")
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
@@ -59,6 +61,7 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.hashed_password, password)
 
 
+# model of inventory item
 class Item(db.Model):
     __tablename__ = 'items'
 
@@ -73,6 +76,7 @@ class Item(db.Model):
     user = orm.relationship('User', back_populates='items')
 
 
+# model of request (for example request to repair item)
 class Request(db.Model):
     __tablename__ = 'requests'
 
@@ -86,7 +90,14 @@ class Request(db.Model):
     user = orm.relationship('User', back_populates='requests')
     item = orm.relationship('Item', back_populates='requests')
 
+    @classmethod
+    def create_request(cls, user_id, item_id, type):
+        request = Request(user_id=user_id, item_id=item_id, type=type)
+        db.session.add(request)
+        db.session.commit()
 
+
+# model for purchases
 class Purchase(db.Model):
     __tablename__ = 'purchases'
 
@@ -97,14 +108,3 @@ class Purchase(db.Model):
     price = sa.Column(sa.Float, nullable=False)
     status = sa.Column(sa.Boolean(), nullable=False, default=True)
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow)
-
-
-class Report(db.Model):
-    __tablename__ = 'reports'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    generated_by = sa.Column(sa.Integer, sa.ForeignKey('users.id'), nullable=False)
-    data = sa.Column(sa.Text, nullable=False)
-    created_at = sa.Column(sa.DateTime, default=datetime.utcnow)
-
-    user = orm.relationship('User', back_populates='reports')

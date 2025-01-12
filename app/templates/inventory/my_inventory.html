@@ -69,7 +69,7 @@
                     </p>
                 {% if current_user.role.name == 'admin' %}
                     {% if item.user.id %}
-                    <p class="card-text">Закреплено: {{ item.user.name }}</p>
+                    <p class="card-text">Закреплено: <b>{{ item.user.name }}</b></p>
                     {% endif %}
                 <p class="card-text text-muted" style="font-size: small; position: absolute; bottom: 5.5vh; right: 10px;">
                 {{ item.created_at.strftime("%H:%M %d.%m.%Y") }}
