@@ -48,3 +48,8 @@
     outline: none;
 }
 
+@media (max-width: 576px) {
+    .btn-sm {
+        margin-bottom: 13px !important;
+    }
+}

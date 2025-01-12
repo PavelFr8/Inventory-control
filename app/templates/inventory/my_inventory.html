@@ -51,12 +51,13 @@
 {% endif %}
 
 <div class="container mt-5">
-    <div class="d-flex flex-wrap justify-content-start">
+    <div class="row">
         {% for item in items %}
-        <div class="card shadow-sm border-light me-3 mb-4" style="width: 24rem;">
-            <div class="card-body">
-                <h5 class="card-title text-primary">{{ item.name }}</h5>
-                <h6 class="card-subtitle mb-3 text-muted">Количество: {{ item.quantity }}</h6>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-light">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ item.name }}</h5>
+                    <h6 class="card-subtitle mb-3 text-muted">Доступно: {{ item.available_quantity }} / {{ item.total_quantity }}</h6>
                     <p class="card-text">
                         Состояние:
                         {% if item.state.value == 'new' %}
@@ -67,27 +68,31 @@
                             <span class="badge bg-danger">Сломан</span>
                         {% endif %}
                     </p>
-                {% if current_user.role.name == 'admin' %}
-                    {% if item.user.id %}
-                    <p class="card-text">Закреплено: <b>{{ item.user.name }}</b></p>
+                    {% if current_user.role.name == 'admin' %}
+                        {% if item.requested_items %}
+                            <p class="card-text">Закреплено: </p>
+                            {% for req_item in item.requested_items %}
+                            <p class="card-text"><b>{{ req_item.user.name }}</b> - <b>{{ req_item.quantity }} шт</b>
+                                <a class="badge otkr btn btn-secondary" href="{{ url_for('inventory.remove_assign_item', item_id=item.id, user_id=req_item.user.id) }}">Открепить</a></p>
+                            {% endfor %}
+                        {% endif %}
+                    <p class="card-text text-muted text-end">
+                        {{ item.created_at.strftime("%H:%M %d.%m.%Y") }}
+                    </p>
                     {% endif %}
-                <p class="card-text text-muted" style="font-size: small; position: absolute; bottom: 5.5vh; right: 10px;">
-                {{ item.created_at.strftime("%H:%M %d.%m.%Y") }}
-                </p>
+                </div>
+                {% if current_user.role.name == 'user' %}
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-warning btn-sm">Запросить ремонт</a>
+                    <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-secondary btn-sm">Запросить замену</a>
+                </div>
                 {% endif %}
-            </div>
-            {% if current_user.role.name == 'user' %}
-            <div class="card-footer d-flex justify-content-between">
-                <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-warning btn-sm">Запросить ремонт</a>
-                <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-secondary btn-sm">Запросить замену</a>
-            </div>
-            {% endif %}
             {% if current_user.role.name == 'admin' %}
             <div class="card-footer d-flex justify-content-between">
                 <button class="btn btn-outline-primary btn-sm"  data-bs-toggle="modal" data-bs-target="#changeInventoryModal{{ item.id }}">Редактировать</button>
                 <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-danger btn-sm">Удалить</a>
                 <a href="#" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#assignItemModal{{ item.id }}">Назначить</a>
-
+            </div>
                 <!-- Modal for assigning user -->
                 <div class="modal fade" id="assignItemModal{{ item.id }}" tabindex="-1" aria-labelledby="assignItemModal" aria-hidden="true">
                     <div class="modal-dialog">
@@ -103,6 +108,15 @@
                                         {{ form3.user_id(class="form-control", id="floatingQuantity", placeholder='Назначить') }}
                                         <label for="userSelect">Выберите работника</label>
                                         {% for error in form3.user_id.errors %}
+                                            <div class="alert alert-danger" role="alert">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        {{ form3.quantity(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.available_quantity) }}
+                                        <label for="floatingQuantity">Количество</label>
+                                        {% for error in form3.quantity.errors %}
                                             <div class="alert alert-danger" role="alert">
                                                 {{ error }}
                                             </div>
@@ -130,16 +144,16 @@
                                     <div class="form-floating mb-3">
                                         {{ form2.name(class="form-control", id="floatingName", placeholder='Название', value=item.name) }}
                                         <label for="floatingName">Название</label>
-                                        {% for error in form.name.errors %}
+                                        {% for error in form2.name.errors %}
                                             <div class="alert alert-danger" role="alert">
                                                 {{ error }}
                                             </div>
                                         {% endfor %}
                                     </div>
                                     <div class="form-floating mb-3">
-                                        {{ form2.quantity(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.quantity) }}
+                                        {{ form2.quantity(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.total_quantity) }}
                                         <label for="floatingQuantity">Количество</label>
-                                        {% for error in form.quantity.errors %}
+                                        {% for error in form2.quantity.errors %}
                                             <div class="alert alert-danger" role="alert">
                                                 {{ error }}
                                             </div>
@@ -148,7 +162,7 @@
                                     <div class="form-floating mb-3">
                                         {{ form2.state(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.state.value) }}
                                         <label for="floatingQuantity">Состояние</label>
-                                        {% for error in form.quantity.errors %}
+                                        {% for error in form2.quantity.errors %}
                                             <div class="alert alert-danger" role="alert">
                                                 {{ error }}
                                             </div>
@@ -162,8 +176,8 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
         {% endfor %}
     </div>
@@ -176,7 +190,7 @@
         <div class="card shadow-sm border-light me-3 mb-4" style="width: 24rem;">
             <div class="card-body">
                 <h5 class="card-title text-primary">{{ item.name }}</h5>
-                <h6 class="card-subtitle mb-3 text-muted">Количество: {{ item.quantity }}</h6>
+                <h6 class="card-subtitle mb-3 text-muted">Доступно: {{ item.available_quantity }} / {{ item.total_quantity }}</h6>
                     <p class="card-text">
                         Состояние:
                         {% if item.state.value == 'new' %}
