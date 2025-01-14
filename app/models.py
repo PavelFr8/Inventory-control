@@ -19,6 +19,7 @@ class RequestState(Enum):
 class RequestType(Enum):
     REPAIR = 'repair'
     TAKE = 'take'
+    CHANGE = 'change'
 
 
 class ItemState(Enum):
@@ -140,30 +141,25 @@ class Request(db.Model):
         db.session.commit()
 
     def approve_request(self):
+        if self.state.value != 'pending':
+            raise ValueError
         if self.quantity > self.item.available_quantity:
             self.deny_request()
             raise ValueError
         self.state = RequestState.APPROVED
         self.item.available_quantity -= self.quantity
-        requested_item: RequestedItem = RequestedItem(user_id=self.user_id,
-                                                      item_id=self.item_id,
-                                                      quantity=self.quantity)
-        db.session.add(requested_item)
+        requested_item: RequestedItem = RequestedItem.query.filter_by(user_id=self.user_id, item_id=self.item_id).first()
+        if requested_item:
+            requested_item.quantity += self.quantity
+        else:
+            requested_item: RequestedItem = RequestedItem(user_id=self.user_id,
+                                                          item_id=self.item_id,
+                                                          quantity=self.quantity)
+            db.session.add(requested_item)
         db.session.commit()
 
     def deny_request(self):
+        if self.state.value != 'pending':
+            raise ValueError
         self.state = RequestState.DENIED
         db.session.commit()
-
-
-# model for purchases
-class Purchase(db.Model):
-    __tablename__ = 'purchases'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String, nullable=False)
-    quantity = sa.Column(sa.Integer, nullable=False)
-    supplier = sa.Column(sa.String, nullable=False)
-    price = sa.Column(sa.Float, nullable=False)
-    status = sa.Column(sa.Boolean(), nullable=False, default=True)
-    created_at = sa.Column(sa.DateTime, default=datetime.utcnow)

@@ -83,8 +83,8 @@
                 </div>
                 {% if current_user.role.name == 'user' %}
                 <div class="card-footer d-flex justify-content-between">
-                    <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-warning btn-sm">Запросить ремонт</a>
-                    <a href="{{ url_for('inventory.delete_item', id=item.id) }}" class="btn btn-outline-secondary btn-sm">Запросить замену</a>
+                    <a href="{{ url_for('request.create_request', item_id=item.id, user_id=current_user.id, type='repair') }}"  class="btn btn-outline-primary btn-sm">Запросить ремонт</a>
+                    <a href="{{ url_for('request.create_request', item_id=item.id, user_id=current_user.id, type='change') }}" class="btn btn-outline-secondary btn-sm">Запросить замену</a>
                 </div>
                 {% endif %}
             {% if current_user.role.name == 'admin' %}
@@ -203,7 +203,35 @@
                     </p>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <a href="#" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal">Запросить</a>
+                <button class="btn btn-outline-secondary btn-sm"  data-bs-toggle="modal" data-bs-target="#CreateRequest{{ item.id }}">Запросить</button>
+            </div>
+            <!-- Modal for creating request user -->
+            <div class="modal fade" id="CreateRequest{{ item.id }}" tabindex="-1" aria-labelledby="assignItemModal" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Запрос инвентаря</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ url_for('request.create_request', item_id=item.id, user_id=current_user.id, type='take') }}" method="POST">
+                                {{ form4.hidden_tag() }}
+                                <div class="form-floating mb-3">
+                                    {{ form4.quantity(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.available_quantity) }}
+                                    <label for="floatingQuantity">Количество</label>
+                                    {% for error in form4.quantity.errors %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ error }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Запросить</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         {% endfor %}

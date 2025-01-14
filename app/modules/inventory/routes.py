@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 
 from app.models import Item, ItemState, User, RequestedItem
 from app import db, logger
+from app.modules.request.forms import CreateRequestForm
 from app.utils.is_admin import is_admin
 from . import module, forms
 
@@ -19,6 +20,7 @@ def my_inventory():
     form = forms.CreateItemForm()
     form2 = forms.ChangeItemForm()
     form3 = forms.AssignItemForm()
+    form4 = CreateRequestForm()
 
     if current_user.role.name == 'admin':
         items = Item.query.all()
@@ -35,7 +37,7 @@ def my_inventory():
     form3.user_id.choices = [(user.id, user.name) for user in users]
 
     return render_template('inventory/my_inventory.html', title='Доступный инвентарь', items=items, form=form,
-                           form2=form2, form3=form3, users=users, available_items=available_items)
+                           form2=form2, form3=form3, form4=form4, users=users, available_items=available_items)
 
 # adding new item to db
 @module.route('/add_item', methods=['POST'])
