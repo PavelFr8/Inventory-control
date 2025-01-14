@@ -28,4 +28,5 @@ class ChangeItemForm(FlaskForm):
 
 class AssignItemForm(FlaskForm):
     user_id = SelectField('Назначить пользователю')
+    quantity = IntegerField('Quantity', validators=[DataRequired()])
     submit = SubmitField('Назначить')
