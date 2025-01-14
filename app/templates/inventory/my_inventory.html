@@ -162,7 +162,7 @@
                                     <div class="form-floating mb-3">
                                         {{ form2.state(class="form-control", id="floatingQuantity", placeholder='Количество', value=item.state.value) }}
                                         <label for="floatingQuantity">Состояние</label>
-                                        {% for error in form2.quantity.errors %}
+                                        {% for error in form2.state.errors %}
                                             <div class="alert alert-danger" role="alert">
                                                 {{ error }}
                                             </div>
