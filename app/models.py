@@ -136,6 +136,11 @@ class Request(db.Model):
         item: Item = Item.query.get(item_id)
         if quantity > item.available_quantity:
             raise ValueError
+        if type.value == 'repair' or type.value == 'change':
+            request = Request.query.filter_by(item_id=item_id, user_id=user_id, type=type,
+                                              state=RequestState.PENDING).first()
+            if request:
+                raise ValueError
         request = Request(user_id=user_id, item_id=item_id, type=type, quantity=quantity)
         db.session.add(request)
         db.session.commit()
@@ -163,3 +168,14 @@ class Request(db.Model):
             raise ValueError
         self.state = RequestState.DENIED
         db.session.commit()
+
+# model for purchases
+class Purchase(db.Model):
+    __tablename__ = 'purchases'
+
+    id = sa.Column(sa.Integer, primary_key=True)
+    name = sa.Column(sa.String, nullable=False)
+    quantity = sa.Column(sa.Integer, nullable=False)
+    supplier = sa.Column(sa.String, nullable=False)
+    price = sa.Column(sa.Float, nullable=False)
+    created_at = sa.Column(sa.DateTime, default=datetime.utcnow)

@@ -11,7 +11,7 @@ from . import module, forms
 
 
 # shows items
-@module.route('/my_inventory', methods=['GET'])
+@module.route('/', methods=['GET'])
 @login_required
 def my_inventory():
     items = []
@@ -58,11 +58,10 @@ def add_item():
             db.session.add(item)
             db.session.commit()
             logger.info(f"Item {form.name.data} successfully added.")
-            return redirect(url_for('inventory.my_inventory'))
         except Exception as e:
             logger.error(f"Error adding item {form.name.data}: {e}")
             db.session.rollback()
-            return redirect(url_for('inventory.my_inventory'))
+    return redirect(url_for('inventory.my_inventory'))
 
 # changing infp about item in db
 @module.route('/change_item/<int:id>', methods=['POST'])
@@ -90,15 +89,13 @@ def change_item(id):
                              state=form.state.data)
             logger.info(f"Item {form.name.data} successfully added.")
 
-            return redirect(url_for('inventory.my_inventory'))
         except ValueError:
             db.session.rollback()
             flash("Слишком маленькое количество инвентаря!", 'warning')
-            return redirect(url_for('inventory.my_inventory'))
         except Exception as e:
             logger.error(f"Error adding item {form.name.data}: {e}")
             db.session.rollback()
-            return redirect(url_for('inventory.my_inventory'))
+    return redirect(url_for('inventory.my_inventory'))
 
 # deleting item from db
 @module.route('/delete_item/<int:id>')
