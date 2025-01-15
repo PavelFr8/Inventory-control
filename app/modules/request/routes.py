@@ -14,6 +14,7 @@ def requests():
     user_requests = []
     if current_user.role.name == 'admin':
         user_requests = Request.query.all()
+        user_requests = user_requests[::-1]
     if current_user.role.name == 'user':
         user_requests = Request.query.filter_by(user_id=current_user.id).all()
     return render_template('request/requests.html', title='Заявки', user_requests=user_requests)

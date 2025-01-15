@@ -77,11 +77,11 @@
                     </p>
                 </div>
                 <div class="card-footer d-flex justify-content-between">
-                    <a href="" class="btn btn-outline-danger btn-sm">Удалить</a>
+                    <a href="{{ url_for('purchase.delete_purchase', id=purc.id) }}" class="btn btn-outline-danger btn-sm">Удалить</a>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
-</div>>
+</div>
 {% endblock %}

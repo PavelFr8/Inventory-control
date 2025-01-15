@@ -78,6 +78,12 @@ def create_app():
     import app.modules.purchase as purchase
     app.register_blueprint(purchase.module)
 
+    import app.modules.report as report
+    app.register_blueprint(report.module)
+
+    import app.api as api
+    app.register_blueprint(api.module)
+
     logger.info("Flask application initialized successfully.")
 
     return app

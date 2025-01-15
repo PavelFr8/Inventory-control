@@ -9,8 +9,8 @@ from . import module, forms
 
 # get current purchases
 @module.route('/', methods=['GET'])
-@is_admin
 @login_required
+@is_admin
 def purchase():
     form = forms.CreatePurchaseForm()
     purchases = Purchase.query.all()
@@ -19,8 +19,8 @@ def purchase():
 
 # create new purchase
 @module.route('/create', methods=['POST'])
-@is_admin
 @login_required
+@is_admin
 def create_purchase():
     form = forms.CreatePurchaseForm()
 
@@ -36,4 +36,14 @@ def create_purchase():
             db.session.rollback()
             logger.error(f"Error creating new purchase: {e}")
             flash('Произошла ошибка!', 'error')
+    return redirect(url_for('purchase.purchase'))
+
+# deleting purchase
+@module.route('/delete/<int:id>', methods=['GET'])
+@login_required
+@is_admin
+def delete_purchase(id):
+    purchase: Purchase = Purchase.query.get(id)
+    db.session.delete(purchase)
+    db.session.commit()
     return redirect(url_for('purchase.purchase'))
