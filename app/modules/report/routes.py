@@ -37,9 +37,9 @@ def get_report():
         if i == 0:
             table.columns[i].width = Inches(3)
         elif i == 1:
-            table.columns[i].width = Inches(2)
+            table.columns[i].width = Inches(1)
         elif i == 2:
-            table.columns[i].width = Inches(2)
+            table.columns[i].width = Inches(1)
         elif i == 3:
             table.columns[i].width = Inches(2)
         elif i == 4:
@@ -59,7 +59,12 @@ def get_report():
         row_cells[0].text = item.name
         row_cells[1].text = str(item.total_quantity)
         row_cells[2].text = str(item.available_quantity)
-        row_cells[3].text = item.state.value
+        if item.state.value == 'used':
+            row_cells[3].text = "Используемый"
+        elif item.state.value == 'new':
+            row_cells[3].text = "Новый"
+        elif item.state.value == 'broken':
+            row_cells[3].text = "Сломан"
 
         # Получаем пользователей, использующих данный предмет
         users_using_item = RequestedItem.query.filter_by(item_id=item.id).all()
