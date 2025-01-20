@@ -32,12 +32,8 @@ def json_is_valid(required_fields):
                 if field not in data or data[field] is None:
                     return jsonify({"status": "error", "message": f"Missing or null field: {field}"}), 400
 
-                # Custom validation for 'cells'
-                if field == 'cells' and not validate_cells(data[field]):
-                    return jsonify({"status": "error", "message": "Invalid structure for 'cells'."}), 400
-
                 # Standard type check for non-custom fields
-                elif field != 'cells' and not isinstance(data[field], field_type):
+                elif not isinstance(data[field], field_type):
                     return jsonify({"status": "error",
                                     "message": f"Invalid type for field: {field}. Expected {field_type.__name__}."}), 400
 

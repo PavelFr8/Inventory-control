@@ -16,7 +16,6 @@ from . import module
 @login_required
 @is_admin
 def get_report():
-    # Получаем все предметы из базы данных
     items = Item.query.all()
 
     # Создаем новый документ
@@ -26,13 +25,12 @@ def get_report():
     # Добавление даты создания отчета
     report_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     doc.add_paragraph(f'Дата создания отчета: {report_date}')
-    doc.add_paragraph()  # Пустая строка для разделения
+    doc.add_paragraph()
 
     # Добавляем таблицу в документ
     table = doc.add_table(rows=1, cols=5)
     table.style = 'Table Grid'
 
-    # Устанавливаем ширину столбцов
     for i in range(len(table.columns)):
         if i == 0:
             table.columns[i].width = Inches(3)
@@ -45,7 +43,6 @@ def get_report():
         elif i == 4:
             table.columns[i].width = Inches(6)
 
-    # Добавляем заголовок таблицы
     hdr_cells = table.rows[0].cells
     hdr_cells[0].text = 'Название предмета'
     hdr_cells[1].text = 'Общее количество'
@@ -53,7 +50,7 @@ def get_report():
     hdr_cells[3].text = 'Состояние'
     hdr_cells[4].text = 'Используется (пользователь и количество)'
 
-    # Добавляем строки с данными
+    # Вносим данные в файл
     for item in items:
         row_cells = table.add_row().cells
         row_cells[0].text = item.name
@@ -66,7 +63,7 @@ def get_report():
         elif item.state.value == 'broken':
             row_cells[3].text = "Сломан"
 
-        # Получаем пользователей, использующих данный предмет
+        # Вносим данные пользователей, использующих сейчас инвентарь
         users_using_item = RequestedItem.query.filter_by(item_id=item.id).all()
         if users_using_item:
             user_details = []
@@ -78,11 +75,9 @@ def get_report():
         else:
             row_cells[4].text = 'Нет'
 
-    # Сохраняем документ в объект BytesIO
     byte_io = BytesIO()
     doc.save(byte_io)
     byte_io.seek(0)
 
-    # Отправляем файл пользователю
     return send_file(byte_io, as_attachment=True, download_name='отчет_об_инвентаре.docx',
                      mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
