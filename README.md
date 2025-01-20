@@ -14,7 +14,7 @@
 - Закрепление инвентаря за пользователями.
 - Планирование закупок с указанием цены и поставщика.
 - Генерация отчетов по состоянию и использованию инвентаря.
-- Интеграция с внешними системами для автоматизации закупок.
+- [Интеграция с внешними системами для автоматизации закупок](https://github.com/PavelFr8/Inventory-control/blob/main/app/api/API_DOC.md).
 
 ### Для пользователя:
 - Регистрация и авторизация.
@@ -74,7 +74,7 @@ source venv/bin/activate   # для Windows venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-- Создайте файл .env и внесите в него необходимые данные (см. файл [.env_example](https://github.com/PavelFr8/Inventory-control/blob/main/.env_example))
+- Создайте файл `.env` и внесите в него необходимые данные (см. файл [.env_example](https://github.com/PavelFr8/Inventory-control/blob/main/.env_example))
 
 ### Шаг 4: Инициализация базы данных
 ```bash

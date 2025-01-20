@@ -99,9 +99,6 @@ class Item(db.Model):
             db.session.add(requested_item)
         db.session.commit()
 
-    def remove_item(self):
-        pass
-
 
 # model for items, which were transferred to user
 class RequestedItem(db.Model):
