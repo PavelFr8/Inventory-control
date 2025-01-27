@@ -8,17 +8,17 @@ from . import module
 @json_is_valid({"name": str, "quantity": int, "price": int, "supplier": str})
 def create_purchase():
     """
-    Creates a new purchase.
+    Создает новую закупку.
 
-    Request JSON body:
-        - name (str): The name of the item in purchase.
-        - supplier (str): The name of the supplier.
-        - price (int): The planning price of inventory item.
-        - quantity (int): The quantity of the item in purchase.
+    JSON тело запроса:
+        - name (str): Название товара в закупку.
+        - supplier (str): Название поставщика.
+        - price (int): Плановая цена товара.
+        - quantity (int): Количество товара в покупке.
 
-    :return: JSON response:
-        - status (str): 'success' if the purchase is created successfully.
-        - HTTP status code 201.
+    :return: JSON ответ:
+        - status (str): 'success', если закупка успешно создана.
+        - HTTP статус код 201.
     """
     try:
         name = request.json['name']
@@ -26,13 +26,13 @@ def create_purchase():
         price = request.json['price']
         quantity = request.json['quantity']
 
-        # Validate input values
+        # Проверка входных значений
         if price <= 0:
-            return jsonify({"status": "error", "message": "Price must be greater than zero"}), 400
+            return jsonify({"status": "error", "message": "Цена должна быть больше нуля"}), 400
         if quantity < 0:
-            return jsonify({"status": "error", "message": "Quantity cannot be negative"}), 400
+            return jsonify({"status": "error", "message": "Количество не может быть отрицательным"}), 400
 
-        # Create new purchase
+        # Создание новой закупки
         purchase = Purchase(name=name, quantity=quantity, price=price, supplier=supplier)
 
         db.session.add(purchase)
@@ -40,22 +40,22 @@ def create_purchase():
 
         return jsonify({"status": "success", "id": purchase.id}), 201
     except Exception as e:
-        logger.error(f"Error while creating purchase: {e}. Request data: {request.json}")
-        return jsonify({"status": "error", "message": "Error while creating purchase"}), 500
+        logger.error(f"Ошибка при создании покупки: {e}. Данные запроса: {request.json}")
+        return jsonify({"status": "error", "message": "Ошибка при создании покупки"}), 500
 
 
 @module.route('/delete_purchase', methods=['DELETE'])
 @json_is_valid({"id": int})
 def delete_purchase():
     """
-    Delete a purchase.
+    Удаляет закупку.
 
-    Request JSON body:
-        - id (int): ID of the purchase.
+    JSON тело запроса:
+        - id (int): ID закупку.
 
-    :return: JSON response:
-        - status (str): 'success' if the purchase is deleted successfully.
-        - HTTP status code 200.
+    :return: JSON ответ:
+        - status (str): 'success', если закупка успешно удалена.
+        - HTTP статус код 200.
     """
     try:
         id = request.json['id']
@@ -63,12 +63,41 @@ def delete_purchase():
         purchase = Purchase.query.get(id)
 
         if not purchase:
-            return jsonify({"status": "error", "message": f"Purchase with ID {id} not found"}), 404
+            return jsonify({"status": "error", "message": f"Покупка с ID {id} не найдена"}), 404
 
         db.session.delete(purchase)
         db.session.commit()
 
         return jsonify({"status": "success"}), 200
     except Exception as e:
-        logger.error(f"Error while deleting purchase: {e}. Request data: {request.json}")
-        return jsonify({"status": "error", "message": "Error while deleting purchase"}), 500
+        logger.error(f"Ошибка при удалении покупки: {e}. Данные запроса: {request.json}")
+        return jsonify({"status": "error", "message": "Ошибка при удалении покупки"}), 500
+
+
+@module.route('/purchases', methods=['GET'])
+def get_purchases():
+    """
+    Получает все текущие закупки.
+
+    :return: JSON ответ:
+        - purchases (list): Список всех закупок.
+        - HTTP статус код 200.
+    """
+    try:
+        purchases = Purchase.query.all()
+        purchases_list = [
+            {
+                "id": purchase.id,
+                "name": purchase.name,
+                "quantity": purchase.quantity,
+                "supplier": purchase.supplier,
+                "price": purchase.price,
+                "created_at": purchase.created_at.isoformat()
+            }
+            for purchase in purchases
+        ]
+
+        return jsonify({"status": "success", "purchases": purchases_list}), 200
+    except Exception as e:
+        logger.error(f"Ошибка при получении покупок: {e}")
+        return jsonify({"status": "error", "message": "Ошибка при получении покупок"}), 500
